@@ -130,6 +130,19 @@ Installation using Docker, docker-compose as follows:
 
     ![img](README.assets/6.png)
 
+#### **Choosing a Client: Desktop App or Web Application**
+
+Once the server (backend) services are running, you can interact with Duix.Avatar through **either** of two clients — pick whichever suits you:
+
+| Option | Best for | How it runs |
+| ------ | -------- | ----------- |
+| **Desktop App** (Electron) | Single-machine use with a native installer | Download and install the prebuilt package (see [Client](#client) below) |
+| **Web Application** (browser client) | Accessing Duix.Avatar from any device on your network via a browser | Runs as a Docker container (see [Web Application](#web-application) below) |
+
+Both clients provide the same core workflow (create an avatar, synthesize videos). The web application is a browser-based replacement for the desktop app that runs as an additional container.
+
+> **Important:** The web application must run in the **same Docker environment as the backend services** (or on a host with access to the same shared data volume). The backend containers exchange media by shared file path rather than HTTP upload, so the web container must mount the **same `duix_avatar_data` directory** the backend containers use. The browser itself can connect from anywhere on the network.
+
 #### **Server Deployment Solution for NVIDIA 50 Series Graphics Cards**
 
 For 50 series graphics cards (tested and also works for 30/40 series with CUDA 12.8) Uses the official preview version of PyTorch
@@ -138,6 +151,26 @@ For 50 series graphics cards (tested and also works for 30/40 series with CUDA 1
 
 1. Directly download the [officially built installation package](https://github.com/duixcom/Duix.Avatar/releases)
 2. Double-click `Duix.Avatar-x.x.x-setup.exe` to install
+
+#### **Web Application**
+
+Instead of (or in addition to) the desktop app, you can run the browser-based web client as a Docker container. It must run in the **same Docker environment as the backend services** and mount the **same shared data volume**, because the backend containers exchange media by file path.
+
+1. Configure and start the web container:
+
+   ```bash
+   cd web
+   cp .env.example .env          # edit DUIX_SERVER_HOST + DUIX_DATA_DIR
+   docker compose -f docker-compose.web.yml up -d --build
+   ```
+
+   - `DUIX_SERVER_HOST` — IP/hostname of the machine running the backend containers.
+   - `DUIX_DATA_DIR` — the host path the backend `docker-compose` mounts as its data volume (e.g. `d:/duix_avatar_data` on Windows). This **must be the same directory** the backend uses; it contains the `face2face/` and `voice/` subfolders.
+   - `WEB_PORT` — the port the UI is published on (default `8080`).
+
+2. Open `http://<host-ip>:8080` in a browser from any device on the network. You can also set/override the backend server IP at runtime from the in-app **Settings** page.
+
+> For full details, environment variables, local dev instructions, and the BFF REST API, see [`web/README.md`](web/README.md).
 
 ### Mode 2：Ubuntu 22.04 Installation
 
@@ -209,10 +242,26 @@ docker-compose -f docker-compose-linux.yml up -d
 
 #### **Install the client**
 
+You can use **either** the desktop app or the web application (see [Choosing a Client](#choosing-a-client-desktop-app-or-web-application) above).
+
+**Option A — Desktop App:**
+
 1. Directly download the Linux version of the [officially built installation package](https://github.com/duixcom/Duix.Avatar/releases).
 2. Double click `Duix.Avatar-x.x.x.AppImage` to launch it. No installation is required.
 
 Reminder: In the Ubuntu system, if you enter the desktop as the `root` user, directly double - clicking `Duix.Avatar - x.x.x.AppImage` may not work. You need to execute `./Duix.Avatar - x.x.x.AppImage --no - sandbox` in the command - line terminal. Adding the `--no - sandbox` parameter will do the trick.
+
+**Option B — Web Application (Docker):**
+
+Run the browser-based client as a container in the **same Docker environment as the backend services**, mounting the **same shared data volume**:
+
+```bash
+cd web
+cp .env.example .env          # edit DUIX_SERVER_HOST + DUIX_DATA_DIR
+docker compose -f docker-compose.web.yml up -d --build
+```
+
+Then open `http://<host-ip>:8080` in a browser. Set `DUIX_DATA_DIR` to the same directory the backend `docker-compose` mounts (containing the `face2face/` and `voice/` subfolders). See [`web/README.md`](web/README.md) for full details.
 
 
 
