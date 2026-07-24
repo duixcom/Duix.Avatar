@@ -1,0 +1,42 @@
+networks:
+  ai_network:
+    driver: bridge
+
+services:
+  duix-avatar-tts:
+    image: guiji2025/fish-speech-5090
+    container_name: duix-avatar-tts
+    restart: always
+    runtime: nvidia
+    working_dir: /code
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=0
+      - NVIDIA_DRIVER_CAPABILITIES=compute,graphics,utility,video,display
+    ports:
+      - '18180:8080'
+    volumes:
+      - ~/duix_avatar_data/voice/data:/code/data
+    command: /bin/bash -c "python tools/api_server.py --listen 0.0.0.0:8080"
+    networks:
+      - ai_network
+  duix-avatar-gen-video:
+    image: guiji2025/duix.avatar-5090
+    container_name: duix-avatar-gen-video
+    restart: always
+    runtime: nvidia
+    privileged: true
+    volumes:
+      - ~/duix_avatar_data/face2face:/code/data
+    environment:
+      - PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    shm_size: '8g'
+    ports:
+      - '8383:8383'
+    command: python /code/app_local.py
+    networks:
+      - ai_network

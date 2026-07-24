@@ -1,0 +1,20 @@
+{
+  "name": "duix-avatar-web-server",
+  "version": "1.0.0",
+  "description": "Web BFF for Duix.Avatar — bridges the browser UI to the Duix backend containers (TTS + gen-video) over the network.",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "better-sqlite3": "^11.5.0",
+    "cors": "^2.8.5",
+    "dayjs": "^1.11.13",
+    "express": "^4.21.1",
+    "fluent-ffmpeg": "^2.1.3",
+    "multer": "^1.4.5-lts.1"
+  }
+}

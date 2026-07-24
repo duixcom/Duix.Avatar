@@ -1,0 +1,21 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Local runtime data (SQLite DB, uploaded/generated media, temp files)
+.localdata
+uploads
+tmp
+
+# Logs
+*.log*
+
+# OS files
+.DS_Store

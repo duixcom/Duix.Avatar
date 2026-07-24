@@ -1,0 +1,37 @@
+# Duix.Avatar Web — containerized browser client for the Duix backend services.
+#
+# IMPORTANT: The Duix backend containers (TTS + gen-video) exchange media by
+# shared file path, so this web container must mount the SAME data directory the
+# backend containers use. For that reason it is best deployed on the same host
+# (or a host with access to the same volume) as the backend containers.
+#
+# Configure the backend location with DUIX_SERVER_HOST (or override at runtime
+# from the in-app Settings page). Set DUIX_DATA_DIR to the host path that the
+# backend's docker-compose mounts as d:/duix_avatar_data (Windows) or
+# /path/to/duix_avatar_data (Linux).
+
+services:
+  duix-avatar-web:
+    build: .
+    # image: duix-avatar-web:latest   # or use a prebuilt image
+    container_name: duix-avatar-web
+    restart: always
+    ports:
+      - '${WEB_PORT:-8080}:3000'
+    environment:
+      # IP / hostname of the machine running the backend containers.
+      - DUIX_SERVER_HOST=${DUIX_SERVER_HOST:-127.0.0.1}
+      - TTS_PORT=18180
+      - FACE2FACE_PORT=8383
+      # Shared data volume mount point INSIDE this container.
+      - DATA_ROOT=/data/duix_avatar_data
+      - APP_DATA=/data/app
+      - LOG_LEVEL=info
+    volumes:
+      # Shared media volume — must be the same directory the backend uses.
+      - ${DUIX_DATA_DIR:-/data/duix_avatar_data}:/data/duix_avatar_data
+      # Persistent app data (SQLite DB, temp files).
+      - duix_web_app_data:/data/app
+
+volumes:
+  duix_web_app_data:
