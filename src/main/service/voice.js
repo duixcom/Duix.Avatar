@@ -23,7 +23,7 @@ export async function train(path, lang = 'zh') {
   })
   log.debug('~ train ~ res:', res)
   if (res.code !== 0) {
-    return false
+    throw new Error(res.msg || `Voice training failed (code ${res.code})`)
   } else {
     const { asr_format_audio_url, reference_audio_text } = res
     return insert({ origin_audio_path: path, lang, asr_format_audio_url, reference_audio_text })
